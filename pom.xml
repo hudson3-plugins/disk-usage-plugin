@@ -5,7 +5,7 @@
     <groupId>org.eclipse.hudson.plugins</groupId>
     <artifactId>hudson-plugin-parent</artifactId>
     <version>3.0.0</version>
-  <relativePath/>
+  <relativePath />
   </parent>
 
   <groupId>org.hudsonci.plugins</groupId>
@@ -13,7 +13,7 @@
   <packaging>hpi</packaging>
   <name>Hudson disk-usage plugin</name>
   <description>Hudson disk-usage plugin</description>
-  <version>0.19-h-1-SNAPSHOT</version>
+  <version>0.19-h-1</version>
   <url>http://wiki.hudson-ci.org/display/HUDSON/Disk+Usage+Plugin</url>
 
   <developers>
