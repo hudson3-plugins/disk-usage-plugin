@@ -3,13 +3,15 @@ package hudson.plugins.disk_usage;
 import hudson.Extension;
 import hudson.Plugin;
 import hudson.Util;
-import hudson.matrix.MatrixProject;
 import hudson.model.*;
+import hudson.util.DataSetBuilder;
+import hudson.util.Graph;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.ServletException;
 import org.kohsuke.stapler.StaplerRequest;
@@ -29,7 +31,7 @@ public class DiskUsagePlugin extends Plugin {
     private static DiskUsage diskUsageSum;
 
     @Extension
-    public static class DiskUsageManagementLink extends ManagementLink implements RootAction {
+    public static class DiskUsageManagementLink extends ManagementLink {
 
         public final String[] COLUMNS = new String[]{"Project name", "Builds", "Workspace"};
 
@@ -42,11 +44,31 @@ public class DiskUsagePlugin extends Plugin {
         }
 
         public String getUrlName() {
-            return Hudson.getInstance().getRootUrl() + "plugin/disk-usage/";
+            return "plugin/disk-usage/";
         }
 
         @Override public String getDescription() {
             return Messages.Description();
+        }
+    }
+    
+    
+    /**
+     * Unfortunately, I cannot figure out any other solution to satisfy HUDSON-12917 and at the same time HUDSON-16420 
+     */
+    @Extension
+    public static class DiskUsageRootLink implements RootAction {
+
+    	public String getIconFileName() {
+            return "/plugin/disk-usage/icons/diskusage48.png";
+        }
+
+        public String getDisplayName() {
+            return Messages.DisplayName();
+        }
+
+        public String getUrlName() {
+            return "/plugin/disk-usage/";
         }
     }
     
@@ -126,6 +148,32 @@ public class DiskUsagePlugin extends Plugin {
         res.forwardToPreviousPage(req);
     }
     
+    /**
+     * Generates a graph with disk usage trend
+     *
+     */
+	public Graph getOverallGraph(){
+        long maxValue = 0;
+        //First iteration just to get scale of the y-axis
+        for (DiskUsageOvearallGraphGenerator.DiskUsageRecord usage : DiskUsageProjectActionFactory.DESCRIPTOR.history ){
+            maxValue = Math.max(maxValue, Math.max(usage.getWsUsage(), usage.getBuildUsage()));
+        }
+
+        int floor = (int) DiskUsage.getScale(maxValue);
+        String unit = DiskUsage.getUnitString(floor);
+        double base = Math.pow(1024, floor);
+
+        DataSetBuilder<String, Date> dsb = new DataSetBuilder<String, Date>();
+
+        for (DiskUsageOvearallGraphGenerator.DiskUsageRecord usage : DiskUsageProjectActionFactory.DESCRIPTOR.history ) {
+			Date label = usage.getDate();
+            dsb.add(((Long) usage.getWsUsage()) / base, "workspace", label);
+            dsb.add(((Long) usage.getBuildUsage()) / base, "build", label);
+        }
+
+		return new DiskUsageGraph(dsb.build(), unit);
+	}
+
     public int getCountInterval(){
     	return duThread.COUNT_INTERVAL_MINUTES;
     }
