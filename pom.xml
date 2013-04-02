@@ -13,7 +13,7 @@
   <packaging>hpi</packaging>
   <name>Hudson disk-usage plugin</name>
   <description>Hudson disk-usage plugin</description>
-  <version>0.19-h-1</version>
+  <version>0.19-h-2-SNAPSHOT</version>
   <url>http://wiki.hudson-ci.org/display/HUDSON/Disk+Usage+Plugin</url>
 
   <developers>
