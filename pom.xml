@@ -48,6 +48,16 @@
     </dependency>
   </dependencies>
   
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.hudson.tools</groupId>
+        <artifactId>maven-hpi-plugin</artifactId>
+        <version>3.0.2</version>
+      </plugin>
+    </plugins>
+  </build>
+  
   <licenses>
     <license>
       <name>The MIT license</name>
